@@ -2,59 +2,129 @@
 {% block title %}Админ-панель{% endblock %}
 
 {% block content %}
-<h1>Админ-панель</h1>
+<div class="admin-wrapper">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+  <h1 class="h3 mb-0">Админ-панель</h1>
+  <div class="d-flex gap-2">
+    <a href="{{ url_for('admin_add_district') }}" class="btn btn-sm btn-primary">
+      + Добавить район
+    </a>
+  </div>
+</div>
 
-<h3>Пользователи</h3>
-<table class="table table-sm">
-  <tr><th>ID</th><th>Логин</th><th>Email</th><th>Админ</th></tr>
-  {% for u in users %}
-    <tr>
-      <td>{{ u.id }}</td>
-      <td>{{ u.username }}</td>
-      <td>{{ u.email }}</td>
-      <td>{{ 'Да' if u.is_admin else 'Нет' }}</td>
-    </tr>
-  {% endfor %}
-</table>
 
-<h3>Районы</h3>
-<a href="{{ url_for('admin_add_district') }}" class="btn btn-primary mb-2">Добавить район</a>
-<table class="table table-sm align-middle">
-  <tr><th>ID</th><th>Название</th><th>Действия</th></tr>
-  {% for d in districts %}
-    <tr>
-      <td>{{ d.id }}</td>
-      <td>{{ d.name }}</td>
-      <td>
-        <form method="post"
-              action="{{ url_for('admin_delete_district', district_id=d.id) }}"
-              onsubmit="return confirm('Удалить район {{ d.name }}?');"
-              style="display:inline;">
-          <button type="submit" class="btn btn-sm btn-danger">Удалить</button>
-        </form>
-      </td>
-    </tr>
-  {% endfor %}
-</table>
+  <hr>
 
-<h3>Отзывы</h3>
-<table class="table table-sm align-middle">
-  <tr><th>ID</th><th>Район</th><th>Пользователь</th><th>Оценка</th><th>Действия</th></tr>
-  {% for r in reviews %}
-    <tr>
-      <td>{{ r.id }}</td>
-      <td>{{ r.district.name }}</td>
-      <td>{{ r.author.username }}</td>
-      <td>{{ r.rating }}</td>
-      <td>
-        <form method="post"
-              action="{{ url_for('admin_delete_review', review_id=r.id) }}"
-              onsubmit="return confirm('Удалить этот отзыв?');"
-              style="display:inline;">
-          <button type="submit" class="btn btn-sm btn-danger">Удалить</button>
-        </form>
-      </td>
-    </tr>
-  {% endfor %}
-</table>
+  <h2 class="h5 mt-3 mb-2">Пользователи</h2>
+  <div class="table-responsive mb-4">
+    <table class="table table-sm align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>ID</th>
+          <th>Логин</th>
+          <th>E-mail</th>
+          <th>Админ</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for u in users %}
+        <tr>
+          <td>{{ u.id }}</td>
+          <td>{{ u.username }}</td>
+          <td>{{ u.email }}</td>
+          <td>
+            {% if u.is_admin %}
+              <span class="badge bg-success">да</span>
+            {% else %}
+              <span class="badge bg-secondary">нет</span>
+            {% endif %}
+          </td>
+        </tr>
+      {% else %}
+        <tr><td colspan="4" class="text-muted">Пользователей нет.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <h2 class="h5 mb-2">Районы</h2>
+  <div class="table-responsive mb-4">
+    <table class="table table-sm align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>ID</th>
+          <th>Название</th>
+          <th>Описание</th>
+          <th>Картинок</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for d in districts %}
+        <tr>
+          <td>{{ d.id }}</td>
+          <td>{{ d.name }}</td>
+          <td class="text-truncate" style="max-width: 280px;">
+            {{ d.description[:120] }}{% if d.description and d.description|length > 120 %}...{% endif %}
+          </td>
+          <td>{{ d.images|length }}</td>
+          <td class="text-end">
+            <form action="{{ url_for('admin_delete_district', district_id=d.id) }}"
+                  method="post" class="d-inline">
+              <button type="submit" class="btn btn-sm btn-outline-danger"
+                      onclick="return confirm('Удалить район и все его данные?')">
+                Удалить
+              </button>
+            </form>
+          </td>
+        </tr>
+      {% else %}
+        <tr><td colspan="5" class="text-muted">Районов нет.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <h2 class="h5 mb-2">Отзывы</h2>
+  <div class="table-responsive">
+    <table class="table table-sm align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>ID</th>
+          <th>Район</th>
+          <th>Пользователь</th>
+          <th>Оценка</th>
+          <th>Комментарий</th>
+          <th>Дата</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for r in reviews %}
+        <tr>
+          <td>{{ r.id }}</td>
+          <td>{{ r.district.name if r.district }}</td>
+          <td>{{ r.author.username if r.author }}</td>
+          <td>{{ r.rating }}</td>
+          <td class="text-truncate" style="max-width: 260px;">
+            {{ r.comment[:120] }}{% if r.comment and r.comment|length > 120 %}...{% endif %}
+          </td>
+          <td>{{ r.created_at.strftime('%d.%m.%Y %H:%M') if r.created_at }}</td>
+          <td class="text-end">
+            <form action="{{ url_for('admin_delete_review', review_id=r.id) }}"
+                  method="post" class="d-inline">
+              <button type="submit" class="btn btn-sm btn-outline-danger"
+                      onclick="return confirm('Удалить отзыв?')">
+                Удалить
+              </button>
+            </form>
+          </td>
+        </tr>
+      {% else %}
+        <tr><td colspan="7" class="text-muted">Отзывы отсутствуют.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
 {% endblock %}
