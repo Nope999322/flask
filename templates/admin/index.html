@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block title %}Админ-панель{% endblock %}
+
+{% block content %}
+<h1>Админ-панель</h1>
+
+<h3>Пользователи</h3>
+<table class="table table-sm">
+  <tr><th>ID</th><th>Логин</th><th>Email</th><th>Админ</th></tr>
+  {% for u in users %}
+    <tr>
+      <td>{{ u.id }}</td>
+      <td>{{ u.username }}</td>
+      <td>{{ u.email }}</td>
+      <td>{{ 'Да' if u.is_admin else 'Нет' }}</td>
+    </tr>
+  {% endfor %}
+</table>
+
+<h3>Районы</h3>
+<a href="{{ url_for('admin_add_district') }}" class="btn btn-primary mb-2">Добавить район</a>
+<table class="table table-sm align-middle">
+  <tr><th>ID</th><th>Название</th><th>Действия</th></tr>
+  {% for d in districts %}
+    <tr>
+      <td>{{ d.id }}</td>
+      <td>{{ d.name }}</td>
+      <td>
+        <form method="post"
+              action="{{ url_for('admin_delete_district', district_id=d.id) }}"
+              onsubmit="return confirm('Удалить район {{ d.name }}?');"
+              style="display:inline;">
+          <button type="submit" class="btn btn-sm btn-danger">Удалить</button>
+        </form>
+      </td>
+    </tr>
+  {% endfor %}
+</table>
+
+<h3>Отзывы</h3>
+<table class="table table-sm align-middle">
+  <tr><th>ID</th><th>Район</th><th>Пользователь</th><th>Оценка</th><th>Действия</th></tr>
+  {% for r in reviews %}
+    <tr>
+      <td>{{ r.id }}</td>
+      <td>{{ r.district.name }}</td>
+      <td>{{ r.author.username }}</td>
+      <td>{{ r.rating }}</td>
+      <td>
+        <form method="post"
+              action="{{ url_for('admin_delete_review', review_id=r.id) }}"
+              onsubmit="return confirm('Удалить этот отзыв?');"
+              style="display:inline;">
+          <button type="submit" class="btn btn-sm btn-danger">Удалить</button>
+        </form>
+      </td>
+    </tr>
+  {% endfor %}
+</table>
+{% endblock %}

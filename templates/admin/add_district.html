@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Добавить район{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card shadow-sm border-0 mt-3">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Добавить район города Бийска</h5>
+      </div>
+      <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+          <div class="mb-3">
+            <label class="form-label">Название района</label>
+            <input type="text" name="name" class="form-control"
+                   placeholder="Например, Центральный район" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Краткое описание</label>
+            <textarea name="description" class="form-control" rows="4"
+                      placeholder="Особенности района, инфраструктура..."></textarea>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Изображения района</label>
+            <input type="file" name="images" class="form-control"
+                   accept="image/*" multiple>
+            <small class="text-muted">Можно выбрать сразу несколько файлов.</small>
+          </div>
+
+          <div class="d-flex justify-content-between">
+            <a href="{{ url_for('admin_index') }}" class="btn btn-outline-secondary">Назад</a>
+            <button type="submit" class="btn btn-success">Сохранить район</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

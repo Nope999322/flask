@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block title %}{{ district.name }}{% endblock %}
+
+{% block content %}
+<h1 class="mb-3">{{ district.name }}</h1>
+
+{# 1. Сначала изображения района #}
+{% if district.images %}
+  <div class="row mb-4">
+    {% for img in district.images %}
+      <div class="col-6 col-md-4 col-lg-3 mb-3">
+        <img src="{{ url_for('static', filename='districts/' ~ img.filename) }}"
+             class="img-fluid rounded shadow-sm" alt="{{ district.name }}">
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+{# 2. Ниже описание #}
+{% if district.description %}
+  <p class="lead mb-4">{{ district.description }}</p>
+{% else %}
+  <p class="text-muted mb-4">Описание района не задано.</p>
+{% endif %}
+
+<hr>
+
+<h3>Оставить отзыв</h3>
+{% if current_user.is_authenticated %}
+  <form method="post">
+    <div class="mb-2">
+      <label class="form-label">Оценка (1–5)</label>
+      <input type="number" name="rating" min="1" max="5" class="form-control" required>
+    </div>
+    <div class="mb-2">
+      <label class="form-label">Комментарий</label>
+      <textarea name="comment" class="form-control" rows="3"></textarea>
+    </div>
+    <button class="btn btn-success" type="submit">Отправить</button>
+  </form>
+{% else %}
+  <div class="alert alert-warning">
+    Чтобы оставить отзыв, <a href="{{ url_for('login', next=request.path) }}">войдите на сайт</a>.
+  </div>
+{% endif %}
+
+<hr>
+
+<h3>Отзывы</h3>
+{% if reviews %}
+  {% for r in reviews %}
+    <div class="mb-3 border rounded p-2">
+      <div class="d-flex justify-content-between">
+        <div>
+          <strong>{{ r.author.username }}</strong>
+          <span class="text-warning ms-2">Оценка: {{ r.rating }}/5</span><br>
+          <small class="text-muted">{{ r.created_at }}</small>
+        </div>
+
+        {% if current_user.is_authenticated and current_user.is_admin %}
+          <form method="post"
+                action="{{ url_for('admin_delete_review', review_id=r.id) }}"
+                onsubmit="return confirm('Удалить этот отзыв?');"
+                style="display:inline;">
+            <button type="submit" class="btn btn-sm btn-danger">Удалить</button>
+          </form>
+        {% endif %}
+      </div>
+      <p class="mb-0 mt-2">{{ r.comment }}</p>
+    </div>
+  {% endfor %}
+{% else %}
+  <p>Отзывов пока нет.</p>
+{% endif %}
+{% endblock %}
