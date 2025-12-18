@@ -4,7 +4,6 @@
 {% block content %}
 <h1 class="mb-3">{{ district.name }}</h1>
 
-{# ===== Галерея миниатюр ===== #}
 {% if district.images %}
   <div class="row mb-4">
     {% for img in district.images %}
@@ -18,7 +17,6 @@
   </div>
 {% endif %}
 
-{# ===== Описание ===== #}
 {% if district.description %}
   <p class="lead mb-4">{{ district.description }}</p>
 {% else %}
@@ -75,7 +73,6 @@
   <p>Отзывов пока нет.</p>
 {% endif %}
 
-{# ===== Модальное окно для просмотра изображений ===== #}
 <div class="modal fade" id="galleryModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
@@ -98,7 +95,6 @@
   </div>
 </div>
 
-{# ===== JS для листания изображений ===== #}
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     const thumbs = Array.from(document.querySelectorAll('.gallery-thumb'));
