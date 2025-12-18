@@ -4,19 +4,21 @@
 {% block content %}
 <h1 class="mb-3">{{ district.name }}</h1>
 
-{# 1. Сначала изображения района #}
+{# ===== Галерея миниатюр ===== #}
 {% if district.images %}
   <div class="row mb-4">
     {% for img in district.images %}
       <div class="col-6 col-md-4 col-lg-3 mb-3">
         <img src="{{ url_for('static', filename='districts/' ~ img.filename) }}"
-             class="img-fluid rounded shadow-sm" alt="{{ district.name }}">
+             class="img-fluid rounded shadow-sm gallery-thumb"
+             alt="{{ district.name }}"
+             data-index="{{ loop.index0 }}">
       </div>
     {% endfor %}
   </div>
 {% endif %}
 
-{# 2. Ниже описание #}
+{# ===== Описание ===== #}
 {% if district.description %}
   <p class="lead mb-4">{{ district.description }}</p>
 {% else %}
@@ -72,4 +74,65 @@
 {% else %}
   <p>Отзывов пока нет.</p>
 {% endif %}
+
+{# ===== Модальное окно для просмотра изображений ===== #}
+<div class="modal fade" id="galleryModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ district.name }} — фотография</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-center">
+        <img id="galleryModalImage" src="" class="img-fluid rounded" alt="{{ district.name }}">
+      </div>
+      <div class="modal-footer justify-content-between">
+        <div>
+          <button type="button" class="btn btn-outline-secondary" id="prevImage">‹ Назад</button>
+          <button type="button" class="btn btn-outline-secondary" id="nextImage">Вперёд ›</button>
+        </div>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# ===== JS для листания изображений ===== #}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const thumbs = Array.from(document.querySelectorAll('.gallery-thumb'));
+    if (!thumbs.length) return;
+
+    // массив ссылок на изображения
+    const images = thumbs.map(img => img.getAttribute('src'));
+    let currentIndex = 0;
+
+    const modalEl = document.getElementById('galleryModal');
+    const modalImg = document.getElementById('galleryModalImage');
+    const bsModal = new bootstrap.Modal(modalEl);
+
+    function showImage(index) {
+      if (index < 0) index = images.length - 1;
+      if (index >= images.length) index = 0;
+      currentIndex = index;
+      modalImg.src = images[currentIndex];
+    }
+
+    thumbs.forEach((thumb, idx) => {
+      thumb.addEventListener('click', () => {
+        showImage(idx);
+        bsModal.show();
+      });
+    });
+
+    document.getElementById('prevImage').addEventListener('click', function () {
+      showImage(currentIndex - 1);
+    });
+
+    document.getElementById('nextImage').addEventListener('click', function () {
+      showImage(currentIndex + 1);
+    });
+  });
+</script>
 {% endblock %}
